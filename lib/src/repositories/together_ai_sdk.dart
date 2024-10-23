@@ -209,7 +209,7 @@ class TogetherAISdk {
         'steps': steps,
       });
       final data = response.data;
-      print(data);
+      developer.log('Data: ${data}', name: 'together_ai_sdk.name');
       return ImageGenerationResponse.fromJson(data);
     } on DioException catch (e) {
       developer.log(e.toString());

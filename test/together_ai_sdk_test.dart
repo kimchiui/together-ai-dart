@@ -1,4 +1,5 @@
 import 'package:together_ai_sdk/src/models/chat_completion.dart';
+import 'package:together_ai_sdk/src/models/image_generation.dart';
 import 'package:together_ai_sdk/src/models/text_completion.dart';
 import 'package:together_ai_sdk/together_ai_sdk.dart';
 import 'package:test/test.dart';
@@ -134,5 +135,43 @@ void main() {
 
       verify(() => mockDio.post(any(), data: any(named: 'data'))).called(1);
     });
+
+
+  test('imageGeneration should return ImageGeneration on success', () async {
+      final prompt = 'Steampunk cat';
+      final model = ImageModel.stableDiffusionXL1_0;
+
+      when(() => mockDio.post(any(), data: any(named: 'data')))
+          .thenAnswer((_) async => Response(
+                requestOptions: RequestOptions(path: ''),
+                data: {
+                "id": "8d712979edf8ef73-PDX",
+                "model": "stabilityai/stable-diffusion-xl-base-1.0",
+                "object": "list",
+                "data": [
+                  {
+                    "index": 0,
+                    "url": "someurl",
+                    "timings": {
+                      "inference": 2561
+                    }
+                  }
+                ]
+              },
+              ));
+
+      final result = await sdk.imageGeneration(prompt, imageModel: model);
+
+      expect(result, isA<ImageGenerationResponse>());
+      expect(result?.id, '8d712979edf8ef73-PDX');
+      expect(result?.object, 'list');
+      expect(result?.model, 'stabilityai/stable-diffusion-xl-base-1.0');
+
+      expect(result?.data.first.index, 0);
+      expect(result?.data.first.url, "someurl");
+
+      verify(() => mockDio.post(any(), data: any(named: 'data'))).called(1);
+    });
   });
+
 }
