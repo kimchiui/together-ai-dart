@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:together_ai_sdk/src/common/enum_ai_models.dart';
@@ -312,6 +313,33 @@ Future<String> imageToBase64(String imagePath) async {
 
   return "data:image/jpeg;base64,$base64Image";
 }
+
+// Convert the image url to a b64 encoded image data url
+  Future<String?> imageUrlToBase64(String imageUrl) async {
+      final dio = Dio();
+  
+      try {
+      // Fetch the image data from the URL
+      final response = await dio.get(imageUrl, options: Options(responseType: ResponseType.bytes));
+    
+      if (response.statusCode == 200) {
+        // Convert the image bytes to Base64
+        Uint8List imageBytes = Uint8List.fromList(response.data);
+        String base64Image = base64Encode(imageBytes);
+      
+        // Construct the Data URL (assuming JPEG format)
+        String dataUrl = 'data:image/jpeg;base64,$base64Image';
+        //print('Data URL: $dataUrl');
+        return dataUrl;
+      } else {
+        print('Failed to load image. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return null;
+    }
+  }
 
 //Deprecated code
 
