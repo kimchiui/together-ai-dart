@@ -1,5 +1,10 @@
 // Image Generation Model
 
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+
 class ImageGenerationResponse {
   final String id;
   final String model;
@@ -52,5 +57,32 @@ class ImageData {
   String toString() {
     //return 'ImageData(index: $index, b64Json: $b64Json)';
     return 'ImageData(index: $index, url: $url)';
+  }
+
+  // Convert the image url to a b64 encoded image data url
+  Future<String?> toB64DataUrl() async {
+      final dio = Dio();
+  
+      try {
+      // Fetch the image data from the URL
+      final response = await dio.get(url, options: Options(responseType: ResponseType.bytes));
+    
+      if (response.statusCode == 200) {
+        // Convert the image bytes to Base64
+        Uint8List imageBytes = Uint8List.fromList(response.data);
+        String base64Image = base64Encode(imageBytes);
+      
+        // Construct the Data URL (assuming JPEG format)
+        String dataUrl = 'data:image/jpeg;base64,$base64Image';
+        //print('Data URL: $dataUrl');
+        return dataUrl;
+      } else {
+        print('Failed to load image. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return null;
+    }
   }
 }
