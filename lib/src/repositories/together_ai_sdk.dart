@@ -201,13 +201,13 @@ class TogetherAISdk {
     int n = 1,
     int steps = 10,
   }) async {
-    //TODO 4: Add link for more information on the parameters
+    //More info here: https://docs.together.ai/reference/post_images-generations
     try {
       final response = await dio.post('/v1/images/generations', data: {
         'model': imageModel.toString(),
         'prompt': prompt,
-        'n': n,
-        'steps': steps,
+        'n': n, //Number of image results to generate
+        'steps': steps, //Number of generation steps
       });
       final data = response.data;
       developer.log('Data: ${data}', name: 'together_ai_sdk.name');
