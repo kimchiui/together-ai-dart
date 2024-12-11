@@ -1,4 +1,5 @@
 import 'package:together_ai_sdk/src/models/chat_completion.dart';
+import 'package:together_ai_sdk/together_ai_sdk.dart';
 
 abstract class ConversationMemory {
   List<Map<String, String>> getMessages();
@@ -74,75 +75,78 @@ class ConversationBufferWindowMemory implements ConversationMemory {
   }
 }
 
-//To be implemented and checked in the future.
-// class ConversationSummaryBufferMemory implements ConversationMemory {
-//   final int _windowSize;
-//   String _currentSummary = "";
-//   final List<Map<String, String>> _messages = [];
-//   final TogetherAISdk _llm;
-//   final ChatModel _model;
+class ConversationSummaryBufferMemory implements ConversationMemory {
+  final int _windowSize;
+  String _currentSummary = "";
+  final List<Map<String, String>> _messages = [];
+  final TogetherAISdk _llm;
+  final ChatModel _model;
 
-//   ConversationSummaryBufferMemory(
-//       this._windowSize, this._currentSummary, this._llm, this._model);
+  ConversationSummaryBufferMemory(
+      this._windowSize, this._currentSummary, this._llm, this._model);
 
-//   // Getter for current summary
-//   String getCurrentSummary() {
-//     return _currentSummary;
-//   }
+  // Getter for current summary
+  String getCurrentSummary() {
+    return _currentSummary;
+  }
 
-//   // Get messages within the window size
-//   @override
-//   List<Map<String, String>> getMessages() {
-//     if (_messages.length <= _windowSize) {
-//       return _messages;
-//     }
-//     return _messages.sublist(_messages.length - _windowSize);
-//   }
+  // Get messages within the window size
+  @override
+  List<Map<String, String>> getMessages() {
+    if (_messages.length <= _windowSize) {
+      return _messages;
+    }
+    return _messages.sublist(_messages.length - _windowSize);
+  }
 
-//   // Add a new message to the conversation
-//   @override
-//   void addMessage(Message message) async {
-//     _messages.add(message);
+  // Add a new message to the conversation
+  @override
+  Future<void> addMessage(Message message) async {
+    Map<String, String> messageMap = {
+      'role': message.role,
+      'content': message.content,
+    };
+    _messages.add(messageMap);
 
-//     if (_messages.length > _windowSize) {
-//       await _updateSummary();
-//     }
-//   }
+    if (_messages.length > _windowSize) {
+      await _updateSummary();
+    }
+  }
 
-//   // Clear all messages and summary
-//   @override
-//   void clear() {
-//     _messages.clear();
-//     _currentSummary = "";
-//   }
+  // Clear all messages and summary
+  @override
+  void clear() {
+    _messages.clear();
+    _currentSummary = "";
+  }
 
-//   // Private method to update the summary
-//   Future<void> _updateSummary() async {
-//     final messagesToSummarize =
-//         _messages.sublist(0, _messages.length - _windowSize);
-//     final promptMessages = [
-//       {
-//         'role': 'system',
-//         'content': 'You are a helpful assistant that summarizes conversations.'
-//       },
-//       {
-//         'role': 'user',
-//         'content': '''
-// Please summarize the following conversation:
+  // Private method to update the summary
+  Future<void> _updateSummary() async {
+    final messagesToSummarize =
+        _messages.sublist(0, _messages.length - _windowSize);
+    final promptMessages = [
+      {
+        'role': 'system',
+        'content': 'You are a helpful assistant that summarizes conversations.'
+      },
+      {
+        'role': 'user',
+        'content': '''
+Please summarize the following conversation:
 
-// ${messagesToSummarize.map((m) => "${m['role']}: ${m['content']}").join('\n')}
+${messagesToSummarize.map((m) => "${m['role']}: ${m['content']}").join('\n')}
 
-// Current summary: $_currentSummary
-// '''
-//       }
-//     ];
+Current summary: $_currentSummary
+'''
+      }
+    ];
 
-//     final completion = await _llm.chatCompletion(promptMessages, _model);
+    final completion = await _llm.chatCompletion(promptMessages, _model);
 
-//     // Update summary and remove summarized messages
-//     if (completion != null && completion.choices.isNotEmpty) {
-//       _currentSummary = completion.choices[0].message.content;
-//       _messages.removeRange(0, _messages.length - _windowSize);
-//     }
-//   }
-// }
+    // Update summary and remove summarized messages
+    if (completion.choices.isNotEmpty) {
+      _currentSummary = completion.choices[0].message.content;
+      _messages.removeRange(0, _messages.length - _windowSize);
+    }
+  }
+}

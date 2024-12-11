@@ -316,17 +316,18 @@ Future<String> imageToBase64(String imagePath) async {
 
 // Convert the image url to a b64 encoded image data url
 Future<String?> imageUrlToBase64(String imageUrl) async {
-    final dio = Dio();
+  final dio = Dio();
 
-    try {
+  try {
     // Fetch the image data from the URL
-    final response = await dio.get(imageUrl, options: Options(responseType: ResponseType.bytes));
-  
+    final response = await dio.get(imageUrl,
+        options: Options(responseType: ResponseType.bytes));
+
     if (response.statusCode == 200) {
       // Convert the image bytes to Base64
       Uint8List imageBytes = Uint8List.fromList(response.data);
       String base64Image = base64Encode(imageBytes);
-    
+
       // Construct the Data URL (assuming JPEG format)
       String dataUrl = 'data:image/jpeg;base64,$base64Image';
       //print('Data URL: $dataUrl');

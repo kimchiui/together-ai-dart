@@ -136,8 +136,7 @@ void main() {
       verify(() => mockDio.post(any(), data: any(named: 'data'))).called(1);
     });
 
-
-  test('imageGeneration should return ImageGeneration on success', () async {
+    test('imageGeneration should return ImageGeneration on success', () async {
       final prompt = 'Steampunk cat';
       final model = ImageModel.stableDiffusionXL1_0;
 
@@ -145,19 +144,17 @@ void main() {
           .thenAnswer((_) async => Response(
                 requestOptions: RequestOptions(path: ''),
                 data: {
-                "id": "8d712979edf8ef73-PDX",
-                "model": "stabilityai/stable-diffusion-xl-base-1.0",
-                "object": "list",
-                "data": [
-                  {
-                    "index": 0,
-                    "url": "someurl",
-                    "timings": {
-                      "inference": 2561
+                  "id": "8d712979edf8ef73-PDX",
+                  "model": "stabilityai/stable-diffusion-xl-base-1.0",
+                  "object": "list",
+                  "data": [
+                    {
+                      "index": 0,
+                      "url": "someurl",
+                      "timings": {"inference": 2561}
                     }
-                  }
-                ]
-              },
+                  ]
+                },
               ));
 
       final result = await sdk.imageGeneration(prompt, imageModel: model);
@@ -173,5 +170,4 @@ void main() {
       verify(() => mockDio.post(any(), data: any(named: 'data'))).called(1);
     });
   });
-
 }
